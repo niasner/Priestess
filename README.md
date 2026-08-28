@@ -1,4 +1,4 @@
-# Priestesslocal StarterGui = game:GetService("StarterGui")
+local StarterGui = game:GetService("StarterGui")
 local Players = game:GetService("Players")
 
 -- ************************ 移除白名單驗證，直接進入功能 ************************
@@ -212,7 +212,6 @@ Tabs.GeneralTab:Button({
     end
 })
 
--- 直接嵌入第二個腳本的除霧邏輯
 Tabs.GeneralTab:Button({
     Title = "移除霧",
     Icon = "cloud-off",
@@ -234,6 +233,47 @@ Tabs.GeneralTab:Button({
             Lighting.FogEnd = 9e9
         end)
         WindUI:Notify({ Title = "移除霧", Content = "霧氣與大氣特效已成功移除！", Duration = 3 })
+    end
+})
+
+-- 新增：移除岩漿 (直接帶入你給的第二個腳本)
+Tabs.GeneralTab:Button({
+    Title = "移除岩漿",
+    Icon = "flame",
+    Callback = function()
+        local function removeLava()
+            for i, v in pairs(game.Workspace:GetDescendants()) do
+                if v.Name == "Lava" then
+                    v:Destroy()
+                end
+            end
+            for i, v in pairs(game.ReplicatedStorage:GetDescendants()) do
+                if v.Name == "Lava" then
+                    v:Destroy()
+                end
+            end
+        end
+
+        removeLava()
+
+        local function removeLava()
+            for i, v in pairs(game.Workspace:GetDescendants()) do
+                if v.Name == "LavaParts" and v.Parent and v.Parent.Name == "CircleIsland" 
+                    and v.Parent.Parent and v.Parent.Parent.Name == "Map" then
+                    v:Destroy()
+                end
+            end
+
+            for i, v in pairs(game.ReplicatedStorage:GetDescendants()) do
+                if v.Name == "LavaParts" and v.Parent and v.Parent.Name == "CircleIsland" 
+                    and v.Parent.Parent and v.Parent.Parent.Name == "Map" then
+                    v:Destroy()
+                end
+            end
+        end
+
+        removeLava()
+        WindUI:Notify({ Title = "移除岩漿", Content = "岩漿判定已移除！", Duration = 3 })
     end
 })
 
@@ -1007,7 +1047,7 @@ Tabs.texiaoTab:Button({
 Tabs.texiaoTab:Button({
     Title = "未來科技（稍微卡頓）",
     Callback = function()
-        WindUI:Notify({ Title = "地獄火", Content = "正在加載腳本...", Duration = 3 })
+        WindUI:Notify({ Title = "未來科技", Content = "正在加載腳本...", Duration = 3 })
         pcall(function()
             loadstring(game:HttpGet("https://raw.githubusercontent.com/ttker951-dot/col/refs/heads/main/%E6%9C%AA%E6%9D%A5%E7%A7%91%E6%8A%80"))()
         end)
@@ -1027,21 +1067,11 @@ Tabs.texiaoTab:Button({
 Tabs.texiaoTab:Button({
     Title = "電磁脈衝",
     Callback = function()
-        WindUI:Notify({ Title = "生化危機", Content = "正在加載腳本...", Duration = 3 })
+        WindUI:Notify({ Title = "電磁脈衝", Content = "正在加載腳本...", Duration = 3 })
         pcall(function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/ttker951-dot/col/refs/heads/main/%E7%94%B5%E7%A3%81%E8%84%89%E5%86%B2"))()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/ttker951-dot/col/refs/heads/main/%E9%9B%BB%E7%A3%81%E8%84%88%E8%A1%9D"))()
         end)
     end
 })
 
--- ===================== 主題顏色標籤頁 =====================
-local availableThemes = WindUI:GetThemes()
-Tabs.ThemeTab:Dropdown({
-    Title = "切換UI主題",
-    Values = availableThemes,
-    Default = WindUI:GetCurrentTheme(),
-    Callback = function(themeName)
-        WindUI:SetTheme(themeName)
-        WindUI:Notify({ Title = "主題設置", Content = "已切換主題至: " .. themeName, Duration = 2 })
-    end
-})
+Window:SelectTab(1)
