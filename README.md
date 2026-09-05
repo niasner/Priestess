@@ -957,21 +957,21 @@ end)
 Tabs.ActivityTab:Divider()
 
 Tabs.ActivityTab:Button({
-    Title = "aimbot",
+    Title = "自動開船",
     Callback = function()
-        WindUI:Notify({ Title = "Aim Skill", Content = "正在加載腳本...", Duration = 3 })
+        WindUI:Notify({ Title = "Auto boat", Content = "正在加載腳本...", Duration = 3 })
         pcall(function()
-            loadstring(game:HttpGet("https://gist.githubusercontent.com/kismile36/e6ada131f67fcc3a5793eb81974511c8/raw/ac2e04753b0c4e954b05bc554f7fe42a14b13615/AIMBot"))()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/niasner/boat/refs/heads/main/README.md"))()
         end)
     end
 })
 
 Tabs.ActivityTab:Button({
-    Title = "果實m1",
+    Title = "黏怪聚怪",
     Callback = function()
-        WindUI:Notify({ Title = "New Attack", Content = "正在加載腳本...", Duration = 3 })
+        WindUI:Notify({ Title = "TP NPC", Content = "正在加載腳本...", Duration = 3 })
         pcall(function()
-            loadstring(game:HttpGet("https://gist.github.com/kismile36/e6ada131f67fcc3a5793eb81974511c8/raw/49fd45ac4b1164135fb81de2fda6231af55cb436/flash%2520attack"))()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/niasner/XU-/refs/heads/main/README.md"))()
         end)
     end
 })
