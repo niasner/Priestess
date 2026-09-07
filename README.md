@@ -23,7 +23,7 @@ warn("ezzzz已啟動，開始加載功能")
 
 -- 加載 WindUI
 local success, WindUI = pcall(function()
-    return loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))() or loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 end)
 
 if not success or not WindUI then
@@ -61,6 +61,46 @@ local translateConnection = nil
 local translateAccelEnabled = false
 local _G = _G or getfenv(0)._G
 _G.FastAttack = _G.FastAttack ~= nil and _G.FastAttack or true
+_G.WaterWalk = false
+
+-- ===================== 水上行走系統初始化 =====================
+local seaLevel = -1
+local waterPlatform = Workspace:FindFirstChild("XenoWaterPlatform")
+if not waterPlatform then
+    waterPlatform = Instance.new("Part")
+    waterPlatform.Name = "XenoWaterPlatform"
+    waterPlatform.Size = Vector3.new(200, 1, 200)
+    waterPlatform.Transparency = 1
+    waterPlatform.Anchored = true
+    waterPlatform.CanCollide = false
+    waterPlatform.Parent = Workspace
+end
+
+RunService.Stepped:Connect(function()
+    if not _G.WaterWalk then
+        waterPlatform.CanCollide = false
+        return
+    end
+
+    local character = LocalPlayer.Character
+    if not character then return end
+    
+    local myHRP = character:FindFirstChild("HumanoidRootPart")
+    if not myHRP then return end
+
+    if myHRP.Position.Y <= seaLevel + 15 then
+        waterPlatform.CFrame = CFrame.new(myHRP.Position.X, seaLevel, myHRP.Position.Z)
+        waterPlatform.CanCollide = true
+    else
+        waterPlatform.CanCollide = false
+    end
+end)
+
+LocalPlayer.CharacterRemoving:Connect(function()
+    if waterPlatform then
+        waterPlatform.CanCollide = false
+    end
+end)
 
 -- 創建主窗口
 local Window = WindUI:CreateWindow({
@@ -168,6 +208,16 @@ Tabs.GeneralTab:Toggle({
 
 Tabs.GeneralTab:Divider()
 
+-- 新增：水上行走開關
+Tabs.GeneralTab:Toggle({
+    Title = "水上行走 & 防水傷",
+    Value = false,
+    Callback = function(state)
+        _G.WaterWalk = state
+        WindUI:Notify({ Title = "水上行走", Content = state and "水上行走已開啟" or "水上行走已關閉", Duration = 2 })
+    end
+})
+
 Tabs.GeneralTab:Button({
     Title = "飛行",
     Icon = "wind",
@@ -236,35 +286,28 @@ Tabs.GeneralTab:Button({
     end
 })
 
--- 新增：移除岩漿 (直接帶入你給的第二個腳本)
 Tabs.GeneralTab:Button({
     Title = "移除岩漿",
     Icon = "flame",
     Callback = function()
         local function removeLava()
-            for i, v in pairs(game.Workspace:GetDescendants()) do
+            for i, v in pairs(Workspace:GetDescendants()) do
                 if v.Name == "Lava" then
                     v:Destroy()
                 end
             end
-            for i, v in pairs(game.ReplicatedStorage:GetDescendants()) do
+            for i, v in pairs(ReplicatedStorage:GetDescendants()) do
                 if v.Name == "Lava" then
                     v:Destroy()
                 end
             end
-        end
-
-        removeLava()
-
-        local function removeLava()
-            for i, v in pairs(game.Workspace:GetDescendants()) do
+            for i, v in pairs(Workspace:GetDescendants()) do
                 if v.Name == "LavaParts" and v.Parent and v.Parent.Name == "CircleIsland" 
                     and v.Parent.Parent and v.Parent.Parent.Name == "Map" then
                     v:Destroy()
                 end
             end
-
-            for i, v in pairs(game.ReplicatedStorage:GetDescendants()) do
+            for i, v in pairs(ReplicatedStorage:GetDescendants()) do
                 if v.Name == "LavaParts" and v.Parent and v.Parent.Name == "CircleIsland" 
                     and v.Parent.Parent and v.Parent.Parent.Name == "Map" then
                     v:Destroy()
