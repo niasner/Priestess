@@ -208,7 +208,7 @@ Tabs.GeneralTab:Toggle({
 
 Tabs.GeneralTab:Divider()
 
--- 新增：水上行走開關
+-- 水上行走開關
 Tabs.GeneralTab:Toggle({
     Title = "水上行走 & 防水傷",
     Value = false,
@@ -352,7 +352,7 @@ LocalPlayer.CharacterAdded:Connect(function(newCharacter)
     end
 end)
 
--- 快速攻擊模塊
+-- 快速攻擊模塊 (Fast Attack)
 local FastAttackModule = (function()
     if _ENV.rz_FastAttack then return _ENV.rz_FastAttack end
     
@@ -450,7 +450,7 @@ end)()
 
 -- 攻擊開關
 Tabs.AttackTab:Toggle({
-    Title = "攻擊開關",
+    Title = "近戰/武器 Fast Attack",
     Value = _G.FastAttack,
     Callback = function(state)
         if _ENV.rz_FastAttack then
@@ -476,7 +476,7 @@ Tabs.AttackTab:Input({
 })
 
 Tabs.AttackTab:Input({
-    Title = "攻擊速度",
+    Title = "近戰攻擊速度",
     Value = "0.3",
     Placeholder = "輸入攻擊速度",
     Callback = function(text)
@@ -506,6 +506,81 @@ Tabs.AttackTab:Toggle({
             _ENV.rz_FastAttack.attackPlayers = state
             WindUI:Notify({ Title = "攻擊目標", Content = state and "攻擊玩家: 開啟" or "攻擊玩家: 關閉", Duration = 2 })
         end
+    end
+})
+
+Tabs.AttackTab:Divider()
+
+-- ===================== [新增] 果實背包普攻 (雙重普攻) 模組 =====================
+local FruitM1Enabled = false
+local FruitM1Delay = 0.05
+local fruitM1Task = nil
+
+local function GetFruitRemote()
+    local searchLocations = { LocalPlayer.Character, LocalPlayer:FindFirstChild("Backpack") }
+    for _, loc in ipairs(searchLocations) do
+        if loc then
+            for _, tool in ipairs(loc:GetChildren()) do
+                if tool:IsA("Tool") then
+                    local remote = tool:FindFirstChild("LeftClickRemote", true)
+                    if remote then
+                        return remote
+                    end
+                end
+            end
+        end
+    end
+    return nil
+end
+
+local function startFruitM1Loop()
+    if fruitM1Task then
+        task.cancel(fruitM1Task)
+        fruitM1Task = nil
+    end
+    fruitM1Task = task.spawn(function()
+        while FruitM1Enabled do
+            pcall(function()
+                local char = LocalPlayer.Character
+                local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                local remote = GetFruitRemote()
+                
+                if hrp and remote then
+                    remote:FireServer(-hrp.CFrame.UpVector, 2, true)
+                end
+            end)
+            task.wait(FruitM1Delay)
+        end
+        fruitM1Task = nil
+    end)
+end
+
+Tabs.AttackTab:Toggle({
+    Title = "果實背包普攻 (雙重普攻)",
+    Value = false,
+    Callback = function(state)
+        FruitM1Enabled = state
+        if state then
+            startFruitM1Loop()
+            WindUI:Notify({ Title = "果實普攻", Content = "已開啟 (背包果實自動連刷)", Duration = 2 })
+        else
+            if fruitM1Task then
+                task.cancel(fruitM1Task)
+                fruitM1Task = nil
+            end
+            WindUI:Notify({ Title = "果實普攻", Content = "已關閉", Duration = 2 })
+        end
+    end
+})
+
+Tabs.AttackTab:Input({
+    Title = "果實攻擊間隔 (秒)",
+    Value = "0.05",
+    Placeholder = "輸入間隔時間 (預設 0.05)",
+    Callback = function(text)
+        local num = tonumber(text) or 0.05
+        FruitM1Delay = math.clamp(num, 0.01, 1)
+        WindUI:Notify({ Title = "果實間隔", Content = "已設置為: " .. FruitM1Delay, Duration = 2 })
     end
 })
 
